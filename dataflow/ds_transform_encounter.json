@@ -1,0 +1,104 @@
+{
+	"name": "ds_transform_encounter",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dsEncounter",
+						"type": "DatasetReference"
+					},
+					"name": "encountersSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_processesed_encounter",
+						"type": "DatasetReference"
+					},
+					"name": "sinkEncounters"
+				}
+			],
+			"transformations": [
+				{
+					"name": "addOver24HoursColumn"
+				},
+				{
+					"name": "sortPatient"
+				},
+				{
+					"name": "getPreviousStart"
+				},
+				{
+					"name": "addDaysBetweenReadmissionColumn"
+				},
+				{
+					"name": "addReadmissionWithin30DaysColumn"
+				},
+				{
+					"name": "selectColumnsForSink"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as string,",
+				"          START as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'',",
+				"          STOP as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'',",
+				"          PATIENT as string,",
+				"          ORGANIZATION as string,",
+				"          PAYER as string,",
+				"          ENCOUNTERCLASS as string,",
+				"          CODE as integer,",
+				"          DESCRIPTION as string,",
+				"          BASE_ENCOUNTER_COST as double,",
+				"          TOTAL_CLAIM_COST as double,",
+				"          PAYER_COVERAGE as double,",
+				"          REASONCODE as long,",
+				"          REASONDESCRIPTION as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> encountersSource",
+				"encountersSource derive({OVER 24 HOURS} = iif((STOP-START)/(1000*60*24) >= 1,1, 0)) ~> addOver24HoursColumn",
+				"addOver24HoursColumn sort(asc(PATIENT, true),",
+				"     asc(START, true)) ~> sortPatient",
+				"sortPatient window(over(PATIENT),",
+				"     asc(START, true),",
+				"     Previous_start = lag(START, 1, null())) ~> getPreviousStart",
+				"getPreviousStart derive(Days_between_readmission = round((START-Previous_start)/(1000*60*24),2)) ~> addDaysBetweenReadmissionColumn",
+				"addDaysBetweenReadmissionColumn derive(Readmission_30Days = iif(Days_between_readmission > 1 && Days_between_readmission <=30, 1, 0)) ~> addReadmissionWithin30DaysColumn",
+				"addReadmissionWithin30DaysColumn select(mapColumn(",
+				"          Id,",
+				"          START,",
+				"          STOP,",
+				"          PATIENT,",
+				"          ORGANIZATION,",
+				"          PAYER,",
+				"          ENCOUNTERCLASS,",
+				"          CODE,",
+				"          DESCRIPTION,",
+				"          BASE_ENCOUNTER_COST,",
+				"          TOTAL_CLAIM_COST,",
+				"          PAYER_COVERAGE,",
+				"          REASONCODE,",
+				"          REASONDESCRIPTION,",
+				"          {OVER 24 HOURS},",
+				"          Days_between_readmission,",
+				"          Readmission_30Days",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectColumnsForSink",
+				"selectColumnsForSink sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkEncounters"
+			]
+		}
+	}
+}

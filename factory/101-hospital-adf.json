@@ -1,0 +1,9 @@
+{
+	"name": "101-hospital-adf",
+	"location": "canadacentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b449f7c5-9d93-41e4-8308-29a78f36fa9e",
+		"tenantId": "1018809d-549e-452c-9228-6b60e5061570"
+	}
+}

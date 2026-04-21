@@ -1,0 +1,62 @@
+{
+	"name": "dataflow_transform_procedures",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "Procedures"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_processed_procedures",
+						"type": "DatasetReference"
+					},
+					"name": "ProceduresSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "split1"
+				},
+				{
+					"name": "Durationcolumn"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          START as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'',",
+				"          STOP as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss\\'Z\\'',",
+				"          PATIENT as string,",
+				"          ENCOUNTER as string,",
+				"          CODE as long,",
+				"          DESCRIPTION as string,",
+				"          BASE_COST as integer,",
+				"          REASONCODE as long,",
+				"          REASONDESCRIPTION as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false) ~> Procedures",
+				"Procedures split(STOP>START,",
+				"     disjoint: false) ~> split1@(validrows, invalidrows)",
+				"split1@validrows derive(Duration = round((STOP-START)/(1000*60),2)) ~> Durationcolumn",
+				"Durationcolumn sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ProceduresSink"
+			]
+		}
+	}
+}

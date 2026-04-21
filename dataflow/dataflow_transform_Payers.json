@@ -1,0 +1,64 @@
+{
+	"name": "dataflow_transform_Payers",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "payersSource",
+						"type": "DatasetReference"
+					},
+					"name": "payersSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "transformedPayer",
+						"type": "DatasetReference"
+					},
+					"name": "ProcessedPayerID"
+				}
+			],
+			"transformations": [
+				{
+					"name": "payerID"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as string,",
+				"          NAME as string,",
+				"          ADDRESS as string,",
+				"          CITY as string,",
+				"          STATE_HEADQUARTERED as string,",
+				"          ZIP as integer,",
+				"          PHONE as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> payersSource",
+				"payersSource select(mapColumn(",
+				"          Payer_ID = Id,",
+				"          NAME,",
+				"          ADDRESS,",
+				"          CITY,",
+				"          STATE_HEADQUARTERED,",
+				"          ZIP,",
+				"          PHONE",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> payerID",
+				"payerID sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ProcessedPayerID"
+			]
+		}
+	}
+}
