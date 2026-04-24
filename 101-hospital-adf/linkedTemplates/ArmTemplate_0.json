@@ -638,7 +638,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/sql_procedures')]",
+			"name": "[concat(parameters('factoryName'), '/sql_patients')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -648,10 +648,83 @@
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
-				"schema": [],
+				"schema": [
+					{
+						"name": "Id",
+						"type": "varchar"
+					},
+					{
+						"name": "BIRTHDATE",
+						"type": "char"
+					},
+					{
+						"name": "DEATHDATE",
+						"type": "date"
+					},
+					{
+						"name": "PREFIX",
+						"type": "varchar"
+					},
+					{
+						"name": "FIRST",
+						"type": "varchar"
+					},
+					{
+						"name": "LAST",
+						"type": "varchar"
+					},
+					{
+						"name": "SUFFIX",
+						"type": "varchar"
+					},
+					{
+						"name": "MAIDEN",
+						"type": "varchar"
+					},
+					{
+						"name": "MARITAL",
+						"type": "char"
+					},
+					{
+						"name": "RACE",
+						"type": "varchar"
+					},
+					{
+						"name": "ETHNICITY",
+						"type": "varchar"
+					},
+					{
+						"name": "GENDER",
+						"type": "char"
+					},
+					{
+						"name": "BIRTHPLACE",
+						"type": "varchar"
+					},
+					{
+						"name": "ADDRESS",
+						"type": "varchar"
+					},
+					{
+						"name": "CITY",
+						"type": "varchar"
+					},
+					{
+						"name": "STATE",
+						"type": "varchar"
+					},
+					{
+						"name": "COUNTY",
+						"type": "varchar"
+					},
+					{
+						"name": "ZIP",
+						"type": "varchar"
+					}
+				],
 				"typeProperties": {
 					"schema": "hospital_admissions",
-					"table": "procedures"
+					"table": "patients"
 				}
 			},
 			"dependsOn": [

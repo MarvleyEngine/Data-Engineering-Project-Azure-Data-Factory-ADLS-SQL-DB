@@ -446,9 +446,16 @@
 						]
 					},
 					{
-						"name": "copy_processed_procedures_sql_copy1_copy1",
+						"name": "copy_processed_patient_sql",
 						"type": "Copy",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "copy_processed_procedures_sql_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -487,14 +494,76 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "ds_processed_procedures",
+								"referenceName": "processedPatients",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "sql_procedures",
+								"referenceName": "sql_patients",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy_processed_payers_sql",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_processed_patient_sql",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "transformedPayer",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "sql_payers_copy",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -513,7 +582,11 @@
 				"[concat(variables('factoryId'), '/datasets/ds_processesed_encounter')]",
 				"[concat(variables('factoryId'), '/datasets/ds_sql_encounters')]",
 				"[concat(variables('factoryId'), '/datasets/ds_processed_procedures')]",
-				"[concat(variables('factoryId'), '/datasets/sql_procedures')]"
+				"[concat(variables('factoryId'), '/datasets/sql_procedures')]",
+				"[concat(variables('factoryId'), '/datasets/processedPatients')]",
+				"[concat(variables('factoryId'), '/datasets/sql_patients')]",
+				"[concat(variables('factoryId'), '/datasets/transformedPayer')]",
+				"[concat(variables('factoryId'), '/datasets/sql_payers_copy')]"
 			]
 		},
 		{
@@ -1233,6 +1306,150 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_adls_dl_hospital')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_patients')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "varchar"
+					},
+					{
+						"name": "BIRTHDATE",
+						"type": "char"
+					},
+					{
+						"name": "DEATHDATE",
+						"type": "date"
+					},
+					{
+						"name": "PREFIX",
+						"type": "varchar"
+					},
+					{
+						"name": "FIRST",
+						"type": "varchar"
+					},
+					{
+						"name": "LAST",
+						"type": "varchar"
+					},
+					{
+						"name": "SUFFIX",
+						"type": "varchar"
+					},
+					{
+						"name": "MAIDEN",
+						"type": "varchar"
+					},
+					{
+						"name": "MARITAL",
+						"type": "char"
+					},
+					{
+						"name": "RACE",
+						"type": "varchar"
+					},
+					{
+						"name": "ETHNICITY",
+						"type": "varchar"
+					},
+					{
+						"name": "GENDER",
+						"type": "char"
+					},
+					{
+						"name": "BIRTHPLACE",
+						"type": "varchar"
+					},
+					{
+						"name": "ADDRESS",
+						"type": "varchar"
+					},
+					{
+						"name": "CITY",
+						"type": "varchar"
+					},
+					{
+						"name": "STATE",
+						"type": "varchar"
+					},
+					{
+						"name": "COUNTY",
+						"type": "varchar"
+					},
+					{
+						"name": "ZIP",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "hospital_admissions",
+					"table": "patients"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_payers_copy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "PAYER_ID",
+						"type": "char"
+					},
+					{
+						"name": "NAME",
+						"type": "varchar"
+					},
+					{
+						"name": "ADDRESS",
+						"type": "varchar"
+					},
+					{
+						"name": "CITY",
+						"type": "varchar"
+					},
+					{
+						"name": "STATE_HEADQUARTERED",
+						"type": "char"
+					},
+					{
+						"name": "ZIP",
+						"type": "varchar"
+					},
+					{
+						"name": "PHONE",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "hospital_admissions",
+					"table": "payers"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
 			]
 		},
 		{
