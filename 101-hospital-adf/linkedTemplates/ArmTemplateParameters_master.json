@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "101-hospital-adf"
+		},
+		"ls_adls_dl_hospital_accountKey": {
+			"value": ""
+		},
+		"ls_sqldb_password": {
+			"value": ""
+		},
+		"ls_adls_dl_hospital_properties_typeProperties_url": {
+			"value": "https://101datalakehospital.dfs.core.windows.net/"
+		},
+		"ls_http_github_properties_typeProperties_url": {
+			"value": "https://github.com"
+		},
+		"ls_sqldb_properties_typeProperties_server": {
+			"value": "101-hospital-server.database.windows.net"
+		},
+		"ls_sqldb_properties_typeProperties_database": {
+			"value": "101-hospital-database"
+		},
+		"ls_sqldb_properties_typeProperties_userName": {
+			"value": "hospitaladmin"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
