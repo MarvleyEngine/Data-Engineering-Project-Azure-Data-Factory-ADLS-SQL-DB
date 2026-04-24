@@ -1,0 +1,95 @@
+{
+	"name": "ds_sql_encounters",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "char"
+			},
+			{
+				"name": "START",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "STOP",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "PATIENT",
+				"type": "char"
+			},
+			{
+				"name": "ORGANIZATION",
+				"type": "char"
+			},
+			{
+				"name": "PAYER",
+				"type": "char"
+			},
+			{
+				"name": "ENCOUNTERCLASS",
+				"type": "varchar"
+			},
+			{
+				"name": "CODE",
+				"type": "varchar"
+			},
+			{
+				"name": "DESCRIPTION",
+				"type": "varchar"
+			},
+			{
+				"name": "BASE_ENCOUNTER_COST",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "TOTAL_CLAIM_COST",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "PAYER_COVERAGE",
+				"type": "real",
+				"precision": 7
+			},
+			{
+				"name": "REASONCODE",
+				"type": "varchar"
+			},
+			{
+				"name": "REASONDESCRIPTION",
+				"type": "varchar"
+			},
+			{
+				"name": "OVER_24_HOURS",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DAYS_BETWEEN_READMISSION",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "READMISSION_30DAYS",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "hospital_admissions",
+			"table": "encounters"
+		}
+	}
+}
